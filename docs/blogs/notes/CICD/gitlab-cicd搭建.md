@@ -90,6 +90,6 @@ notify-success-job:
  when: on_success  // 当前面一个job成功时执行这个job
 ```
 这边主要是分了三个阶段（stage），一个构建打包，一个部署，一个通知是否部署成功。每一个阶段有一些job，在job里配置了一些脚本（script），每个阶段可以有多个job，gitlab-runner的最小执行单位是按照job来执行，按照书写顺序执行。</br>
-通知阶段的一些任务用到了gitlab的一些变量，如CI_PROJECT_NAME CI_COMMIT_AUTHOR，具体请<a href="https://docs.gitlab.com/ee/ci/variables/predefined_variables.html">参考</a>
+通知阶段的一些任务用到了gitlab的一些变量，如CI_PROJECT_NAME CI_COMMIT_AUTHOR，具体请[参考](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html)
 ## 踩坑记录
 runner服务器和代码部署的服务器是两台不同的服务器，由于我选择的脚本执行方式是ssh方式，需要在runner服务器上配置ssh免密登录，配置流程是把runner服务器上的ssh公钥复制一份放到代码部署服务器的ssh目录下的authorized_keys文件中
