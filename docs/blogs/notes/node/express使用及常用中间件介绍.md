@@ -544,7 +544,7 @@ res.get('Content-Type'); // --> "text/plain"
 ```
 #### res.cookie(name, value, [options])
 设置cookie
-```javascirpt
+```javascript
 res.cookie('rememberme', '1', { maxAge: 900000, httpOnly: true })
 res.cookie('rememberme', '1', { expires: new Date(Date.now() + 900000), httpOnly: true }
 ```

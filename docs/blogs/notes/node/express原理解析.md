@@ -42,13 +42,13 @@ view.js 存储视图信息
 求到来时，调用回调函数app，app调用application.js中的handle函数，application.js中的handle函数调用router/index.js中handle函数，
 router/index.js中的hanle函数调用layer.js中的handle_request函数，layer.js中的handle_request函数会执行匹配成功的中间件</br>
 express.js  传给http.createServer的回调函数</br>
-![avatar](../public/img/app-func.png)</br>
+![avatar](../../public/img/app-func.png)</br>
 application.js</br>
-![avatar](../public/img/hanle-func.png)</br>
+![avatar](../../public/img/hanle-func.png)</br>
 router/index.js router.stack存放了所有的中间件和路由，遍历stack，取出存放的路由和中间件和当前的请求路径进行匹配，匹配成功则执行，不成功则和下一个进行匹配</br>
-![avatar](../public/img/proto-handle-func.png)</br>
+![avatar](../../public/img/proto-handle-func.png)</br>
 router/layer.js   一个layer对象对应一个中间件，在layer.handle_request中执行中间件</br>
-![avatar](../public/img/hanle_request.png)</br>
+![avatar](../../public/img/hanle_request.png)</br>
 ## epxress创建实例的入口
 ```javascript
 function createApplication() {//工厂函数
