@@ -29,5 +29,12 @@ module.exports = [
     children: [
       { title: "gitlab-cicd搭建", path: "/blogs/notes/CICD/gitlab-cicd搭建" }
     ],
+  },
+  {
+    title: "npm",
+    collapsable: true,
+    children: [
+      { title: "如何发布一个npm包", path: "/blogs/notes/npm/如何发布一个npm包" }
+    ],
   }
 ]
