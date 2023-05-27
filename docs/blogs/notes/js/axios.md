@@ -122,6 +122,9 @@ axios.defaults.transformResponse.push((data, headers) => {
 });
 ```
 ## request方法
+这里用到了职责链模式的思想，形成链式调用，职责链模式的思想的应用场景
+1. 工作流 审批流等流程化的业务场景
+2. node 框架 express和koa的中间件，tomcat中的过滤器
 ```javascript
 Axios.prototype.request = function request(configOrUrl, config) {
   
@@ -217,7 +220,7 @@ module.exports = function xhrAdapter(config) {
    ...
 
     var request = new XMLHttpRequest();
-
+.
     function onloadend() {
       if (!request) {
         return;
@@ -349,8 +352,109 @@ module.exports = function httpAdapter(config) {
   });
 };
 ```
+## 取消请求
+
+取消请求的实现使用了类似发布订阅模式的思想，类似的场景有
+1. vue中响应式的实现
+2. 消息队列
+
+### 使用方式
+```javascript
+import axios from 'axios'
+const CancelToken = axios.CancelToken
+const source = CancelToken.source()
+// 第一种方式
+axios.get('/user/12345', {
+  cancelToken: source.token
+}).catch(function(thrown) {
+  if (axios.isCancel(thrown)) {
+    console.log('Request canceled', thrown.message);
+  } else {
+     // 处理错误
+  }
+});
+ 
+axios.post('/user/12345', {
+  name: 'new name'
+}, {
+  cancelToken: source.token
+})
+ 
+// 取消请求（message 参数是可选的）
+source.cancel('Operation canceled by the user.');
+ 
+// 第二种方式
+axios.get(url, {
+  cancelToken: new axios.CancelToken(cancel => {
+    if (/* 取消条件 */) {
+      cancel('取消日志');
+    }
+  })
+});
+```
+cancel/CancelToken.js
+```javascript
+function CancelToken(executor) {
+  if (typeof executor !== 'function') {
+    throw new TypeError('executor must be a function.');
+  }
+ 
+  var resolvePromise;
+  // 用一个promise充当状态，状态改变通知订阅者取消请求
+  this.promise = new Promise(function promiseExecutor(resolve) {
+    resolvePromise = resolve;
+  });
+ 
+  var token = this;
+  executor(function cancel(message) {
+    if (token.reason) {
+      // Cancellation has already been requested
+      return;
+    }
+ 
+    token.reason = new Cancel(message);
+    resolvePromise(token.reason);
+  });
+}
+ 
+ 
+CancelToken.source = function source() {
+  var cancel;
+  var token = new CancelToken(function executor(c) {
+    cancel = c;
+  });
+  return {
+    token: token,
+    cancel: cancel
+  };
+};
+ 
+module.exports = CancelToken;
+```
+adapters/xhr.js
+```javascript
+if (config.cancelToken) {
+   // Handle cancellation
+   // promise状态变成reslove 状态执行.then中的回调
+   config.cancelToken.promise.then(function onCanceled(cancel) {
+     if (!request) {
+       return;
+     }
+ 
+     request.abort();
+     reject(cancel);
+     // Clean up request
+     request = null;
+   });
+ }
+ 
+ // Send the request
+ request.send(requestData);
+```
 ## 其他的一些工具方法
 utils.js 
+这边使用了迭代器模式的思想，简化了对象的遍历，不用关心底层的数据结构，迭代器模式应用场景
+for of语句，可以用这个语句遍历字符串，数组，Set, Map等数据结构
 ```javascript
 function forEach(obj, fn) { // 迭代器方法
   // Don't bother if no value provided
@@ -392,6 +496,5 @@ module.exports = function bind(fn, thisArg) { // bind函数的实现
 };
 ```
 ## 总结
-axios是一个比较好的开源库，其源码中使用一些设计模式，如工厂模式，迭代器模式，发布订阅模式（取消请求的功能实现中用到了），适配器模式，
-还有类似异步中间件的处理请求响应的方式，就像koa的洋葱模型一样，一次请求会经过一系列的流程处理。axios拦截器和数据转换器的实现就是在这种处理请求的方式上建立的。
-axios中的一些设计实现和思想值得学习和借鉴。
+axios是一个比较好的开源库，其源码中使用一些设计模式的思想，如工厂模式，迭代器模式，发布订阅模式，适配器模式，职责链模式，
+还有l类似异步中间件的处理请求响应的方式，一次请求会经过一系列的流程处理。axios拦截器和数据转换器的实现就是在这种处理请求的方式上建立的。axios中的一些设计实现和思想值得学习和借鉴。
